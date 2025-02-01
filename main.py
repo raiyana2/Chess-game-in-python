@@ -74,14 +74,31 @@ white_knight_small = pygame.transform.scale(white_knight, (45, 45))
 white_pawn = pygame.image.load('assets/images/white pawn.png')
 white_pawn = pygame.transform.scale(white_pawn, (65, 65))
 white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
+white_images = [white_pawn, white_queen, white_king, white_knight, white_rook, white_bishop]    
+small_white_images = [white_pawn_small, white_queen_small, white_king_small, white_knight_small, white_rook_small, white_bishop_small]
+black_images = [black_pawn, black_queen, black_king, black_knight, black_rook, black_bishop]    
+small_black_images = [black_pawn_small, black_queen_small, black_king_small, black_knight_small, black_rook_small, black_bishop_small]
 
+piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']  #to associate the piece's name to it's specific index in image list
+#check variables
+
+
+# dram main game board
+def draw_board():
+    for i in range(32):
+        column = i % 4
+        row = i // 4
+        if row % 2 == 0:
+            pygame.draw.rect(screen, 'light gray', [600 - (column * 200), row * 100, 100, 100])
+        else:
+            pygame.draw.rect(screen, 'light gray', [700 - (column * 200), row * 100, 100, 100])    
 
 # main game loop
 run = True
 while run:
     timer.tick(fps)
     screen.fill('dark grey')
-    
+    draw_board()
 
     # event handling
     for event in pygame.event.get():

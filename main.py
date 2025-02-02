@@ -127,6 +127,29 @@ def draw_pieces():
             if selection == i:
                 pygame.draw.rect(screen, 'blue', (black_locations[i][0] * 100 + 1, black_locations[i][1] * 100 + 1, 100, 100), 2)    
 
+
+
+
+# function to check for valid moves
+def check_options():
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # main game loop
 run = True
 while run:
@@ -139,6 +162,45 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            x_coord = event.pos[0] // 100
+            y_coord = event.pos[1]// 100
+            click_coords = (x_coord, y_coord)
+            if turn_step <= 1:
+                if click_coords in white_locations:
+                    selection = white_locations.index(click_coords)
+                    if turn_step == 0:
+                        turn_step = 1
+                if click_coords in valid_moves and selection != 100:
+                    white_locations[selection] = click_coords
+                    if click_coords in black_locations:
+                        black_piece = black_locations.index(click_coords)
+                        captured_pieces_white.append(black_pieces[black_piece])
+                        black_pieces.pop(black_piece)
+                        black_locations.pop(black_piece)
+                    black_options = check_options(black_pieces, black_locations, 'black')
+                    white_options = check_options(white_pieces, white_locations, 'white')
+                    turn_step = 2
+                    selection = 100
+                    valid_moves = []
+            if turn_step > 1:
+                if click_coords in black_locations:
+                    selection = black_locations.index(click_coords)
+                    if turn_step == 2:
+                        turn_step = 3
+                if click_coords in valid_moves and selection != 100:
+                    black_locations[selection] = click_coords
+                    if click_coords in white_locations:
+                        white_piece = white_locations.index(click_coords)
+                        captured_pieces_black.append(white_pieces[white_piece])
+                        white_pieces.pop(white_piece)
+                        white_locations.pop(white_piece)
+                    black_options = check_options(black_pieces, black_locations, 'black')
+                    white_options = check_options(white_pieces, white_locations, 'white')
+                    turn_step = 0
+                    selection = 100
+                    valid_moves = []
+        
 
     pygame.display.flip()        
 pygame.quit()    

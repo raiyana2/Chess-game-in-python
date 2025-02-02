@@ -131,26 +131,63 @@ def draw_pieces():
 
 
 # function to check for valid moves
-def check_options():
-    pass
+def check_options(pieces, locations, turn):
+    moves_list = []
+    all_moves_list = []
+    for i in range(len(pieces)):
+        location = locations[i]
+        piece = pieces[i]
+        if piece == 'pawn':
+            moves_list = check_pawn(location, turn)
+        elif piece == 'rook':
+            moves_list = check_rook(location, turn)     
+        elif piece == 'knight':
+            moves_list = check_knight(location, turn) 
+        elif piece == 'bishop':
+            moves_list = check_bishop(location, turn)
+        elif piece == 'queen':
+            moves_list = check_queen(location, turn)
+        elif piece == 'king':       
+            moves_list = check_king(location, turn)
+        all_moves_list.append(moves_list)                       
+    return all_moves_list
 
+# check valid pawn moves
+def check_pawn(position, colour):
+    moves_list = []
+    if color == 'white':
+        #if one piece below (y coord) my current spot is not currently taken up by another white piece then I am able to move there
+        # and the same position is not in black locations as the pawn cannot attack straight forward and check it does not go off the board (bottom)
+        if (position[0], position[1] + 1) not in white_locations and \
+                (position[0], position[1] + 1) not in black_locations and position[1] < 7:
+            moves_list.append((position[0], position[1] + 1))
+        if (position[0], position[1] + 2) not in white_locations and \
+                (position[0], position[1] + 2) not in black_locations and position[1] == 1:
+            moves_list.append((position[0], position[1] + 2))        
+        if (position[0] + 1, position[1] + 1) in black_locations:  #that means we have a diagonal attack
+            moves_list.append((position[0] + 1, position[1] + 1))
+        if (position[0] - 1, position[1] + 1) in black_locations:       
+            moves_list.append((position[0] - 1, position[1] + 1))
 
+    else:
+        if (position[0], position[1] - 1) not in white_locations and \
+                (position[0], position[1] - 1) not in black_locations and position[1] > 0:
+            moves_list.append((position[0], position[1] - 1))
+        if (position[0], position[1] - 2) not in white_locations and \
+                (position[0], position[1] - 2) not in black_locations and position[1] == 6:
+            moves_list.append((position[0], position[1] + 2))        
+        if (position[0] + 1, position[1] - 1) in white_locations:  #that means we have a diagonal attack
+            moves_list.append((position[0] + 1, position[1] - 1))
+        if (position[0] - 1, position[1] - 1) in white_locations:       
+            moves_list.append((position[0] - 1, position[1] - 1))
 
-
-
-
-
-
-
-
-
-
-
-
+                  
 
 
 
 # main game loop
+black_options = check_options(black_pieces, black_locations, 'black')
+white_options = check_options(white_pieces, white_locations, 'white')
 run = True
 while run:
     timer.tick(fps)

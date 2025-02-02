@@ -2,6 +2,11 @@ import pygame
 
 pygame.init()
 
+pygame.mixer.init()  # Initialize the sound mixer
+dracula_laugh = pygame.mixer.Sound("sound.mp3")  # Load the sound
+
+
+
 WIDTH = 1000
 HEIGHT = 900
 screen = pygame.display.set_mode([WIDTH, HEIGHT])  # This creates an 1000x900 window
@@ -10,10 +15,13 @@ pygame.display.set_caption("Dracula's Chess!")  # This sets the title of the win
 icon = pygame.image.load("chess.jpg")  # This loads the image
 
 pygame.display.set_icon(icon)  # This sets the image as the icon
-font = pygame.font.Font('freesansbold.ttf', 20)
-big_font = pygame.font.Font('freesansbold.ttf', 50)  #to print different things you need different fonts
+font = pygame.font.Font('Nosferatu.ttf', 20)
+big_font = pygame.font.Font('Nosferatu.ttf', 50)  #to print different things you need different fonts
 timer = pygame.time.Clock()
 fps = 60
+
+
+
 
 
 #  game variables and images
@@ -83,6 +91,13 @@ piece_list = ['pawn', 'queen', 'king', 'knight', 'rook', 'bishop']  #to associat
 #check variables
 
 
+# Load the vampire image once to avoid reloading every frame
+vampire_img = pygame.image.load("vampire1.png")  # Ensure this file exists
+vampire_img = pygame.transform.scale(vampire_img, (80, 80))  # Resize to fit UI
+
+peepo_img = pygame.image.load("peepo1.png")  # Ensure this file exists
+peepo_img = pygame.transform.scale(peepo_img, (70, 70))  # Resize to fit UI
+
 # dram main game board
 def draw_board():
     for i in range(32):
@@ -101,7 +116,11 @@ def draw_board():
         for i in range(9):
             pygame.draw.line(screen, 'black', (0, 100 * i), (800, 100 * i), 2)
             pygame.draw.line(screen, 'black', (100 * i, 0), (100 * i, 800), 2)
-
+        # Display vampire image when "Black: Select a Destination!" is shown
+        if turn_step == 1:
+           screen.blit(peepo_img, (600, 812))  # Adjust position
+        elif turn_step == 3:
+           screen.blit(vampire_img, (600, 812))  # Adjust position
 
 # draw game pieces onto board
 def draw_pieces():
@@ -134,26 +153,26 @@ def draw_pieces():
 def check_options(pieces, locations, turn):
     moves_list = []
     all_moves_list = []
-    for i in range(len(pieces)):
+    for i in range(((len(pieces)))):  #for each piece in the list
         location = locations[i]
         piece = pieces[i]
         if piece == 'pawn':
             moves_list = check_pawn(location, turn)
-        elif piece == 'rook':
-            moves_list = check_rook(location, turn)     
-        elif piece == 'knight':
-            moves_list = check_knight(location, turn) 
-        elif piece == 'bishop':
-            moves_list = check_bishop(location, turn)
-        elif piece == 'queen':
-            moves_list = check_queen(location, turn)
-        elif piece == 'king':       
-            moves_list = check_king(location, turn)
+        # elif piece == 'rook':
+        #     moves_list = check_rook(location, turn)     
+        # elif piece == 'knight':
+        #     moves_list = check_knight(location, turn) 
+        # elif piece == 'bishop':
+        #     moves_list = check_bishop(location, turn)
+        # elif piece == 'queen':
+        #     moves_list = check_queen(location, turn)
+        # elif piece == 'king':       
+        #     moves_list = check_king(location, turn)
         all_moves_list.append(moves_list)                       
     return all_moves_list
 
 # check valid pawn moves
-def check_pawn(position, colour):
+def check_pawn(position, color):
     moves_list = []
     if color == 'white':
         #if one piece below (y coord) my current spot is not currently taken up by another white piece then I am able to move there
@@ -175,14 +194,31 @@ def check_pawn(position, colour):
             moves_list.append((position[0], position[1] - 1))
         if (position[0], position[1] - 2) not in white_locations and \
                 (position[0], position[1] - 2) not in black_locations and position[1] == 6:
-            moves_list.append((position[0], position[1] + 2))        
+            moves_list.append((position[0], position[1] - 2))        
         if (position[0] + 1, position[1] - 1) in white_locations:  #that means we have a diagonal attack
             moves_list.append((position[0] + 1, position[1] - 1))
         if (position[0] - 1, position[1] - 1) in white_locations:       
             moves_list.append((position[0] - 1, position[1] - 1))
 
-                  
+    return moves_list              
 
+# check for valid moves for selected piece
+def check_valid_moves():
+    if turn_step < 2:
+        options_list = white_options
+    else:
+        options_list = black_options
+    valid_options = options_list[selection]
+    return valid_options
+
+# draw valid moves on screen
+def draw_valid(moves):
+    if turn_step < 2:
+        color = 'red'
+    else:
+        color = 'blue'
+    for i in range(len(moves)):
+        pygame.draw.circle(screen, color, (moves[i][0] * 100 + 50, moves[i][1] * 100 + 50), 5)
 
 
 # main game loop
@@ -194,6 +230,9 @@ while run:
     screen.fill('dark grey')
     draw_board()
     draw_pieces()
+    if selection != 100:
+        valid_moves = check_valid_moves()
+        draw_valid(valid_moves)
 
     # event handling
     for event in pygame.event.get():
@@ -220,6 +259,9 @@ while run:
                     turn_step = 2
                     selection = 100
                     valid_moves = []
+
+                    # Play Dracula laugh sound after a valid move
+                    dracula_laugh.play()  # Dracula laugh plays here
             if turn_step > 1:
                 if click_coords in black_locations:
                     selection = black_locations.index(click_coords)
@@ -237,6 +279,9 @@ while run:
                     turn_step = 0
                     selection = 100
                     valid_moves = []
+
+                    # Play Dracula laugh sound after a valid move
+                    dracula_laugh.play()  # Dracula laugh plays here
         
 
     pygame.display.flip()        
